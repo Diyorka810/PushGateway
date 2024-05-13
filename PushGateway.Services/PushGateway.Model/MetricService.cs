@@ -1,69 +1,84 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Prometheus;
+using PushGateway.Model;
 using System.Configuration;
+using System.Reflection.PortableExecutable;
 
 namespace PushGateway.Model
 {
     public class MetricService : IMetricService
     {
         public TimeSpan TimeToLive { get; set; } = TimeSpan.FromMinutes(10);
-        private readonly IConfiguration Configuration;
-        public MetricsOptions positionOptions { get; private set; }
+        //private readonly IConfiguration Configuration;
+        //public MetricsOptions positionOptions { get; private set; }
 
-        public MetricService(IConfiguration configuration)
-        {
-            Configuration = configuration;
-            var metricOptions = new MetricsOptions();
-            Configuration.GetSection(MetricsOptions.Position).Bind(metricOptions);
-            TimeToLive = metricOptions.Minutes;
-        }
+        //public MetricService(IConfiguration configuration)
+        //{
+        //    Configuration = configuration;
+        //    var metricOptions = new MetricsOptions();
+        //    Configuration.GetSection(MetricsOptions.Position).Bind(metricOptions);
+        //    TimeToLive = metricOptions.Minutes;
+        //}
 
-        public void AddMetrics(MetricRequestDto metricDto)
+        public void AddMetrics(Metric metric)
         {
             var factory = Metrics.WithManagedLifetime(expiresAfter: TimeToLive);
-            var gauge = factory.CreateGauge(metricDto.Name, metricDto.Description ?? string.Empty, metricDto.Labels.Keys.ToArray());
-            gauge.WithLease(metric=> metric.Set(metricDto.Value), metricDto.Labels.Values.ToArray());
+            if (metric.Labels != null)
+            {
+                var gauge = factory.CreateGauge(metric.Name, metric.Description ?? string.Empty, metric.Labels.Keys.ToArray() ?? new string[0]);
+                gauge.WithLease(metric => metric.Set(metric.Value), metric.Labels.Values.ToArray());
+            }
+            else
+            {
+                var gauge = factory.CreateGauge(metric.Name, metric.Description ?? string.Empty);
+                gauge.WithLease(metric => metric.Set(metric.Value));
+            }
         }
 
-        public void AddListMetrics(MetricRequestListDto metricsDto)
+        public void AddListMetricsDto(MetricRequestListDto metricsDto)
         {
-            foreach (var metric in metricsDto.Metrics)
+            foreach (var metricDto in metricsDto.Metrics)
             {
+                var metric = new Metric(metricDto);
                 AddMetrics(metric);
             }
         }
 
-        public MetricRequestDto MetricParse(string metric)
+        public async Task<List<string>> ReadFile(FileStream metricsFile)
         {
-            var metricDto = new MetricRequestDto();
-
-            var splittedMetricName = metric.Split("{");
-            metricDto.Name = splittedMetricName[0];
-            var splittedMetricValue= splittedMetricName[1].Split("}");
-            metricDto.Value = double.Parse(splittedMetricValue[1].Trim());
-
-            var splittedMetricLabels = splittedMetricValue[0].Split(",");
-            var dict = new Dictionary<string, string>();
-            var chars = new Char[] { '\\', '\"' };
-            foreach (var item in splittedMetricLabels)
+            var steamReader = new StreamReader(metricsFile);
+            var list = new List<string>();
+            string? line;
+            while ((line = await steamReader.ReadLineAsync()) != null)
             {
-                var label = item.Split("=");
-                dict.Add(label[0].Trim(chars), label[1].Trim(chars));
+                list.Add(line);
             }
-            metricDto.Labels = dict;
-
-
-            return metricDto;
+            return list;
         }
 
-        public MetricRequestListDto MetricsListParse(string metrics)
+        public async Task ParseListStringMetrics(string metricsList)
         {
-            var metricList = new MetricRequestListDto();
-            foreach (var metric in metrics.Split("\n"))
+            var splitMetricsList = metricsList.Split("\\n");
+            string description = "";
+            foreach (var line in splitMetricsList)
             {
-                metricList.Metrics.Add(MetricParse(metric));
+                var splitedLine = line.Split(" ");
+                if (splitedLine[0] == "#" && splitedLine[1] == "HELP")
+                {
+                    var help = splitedLine.Skip(3);
+                    description = help.Aggregate((x, y) => x + y);
+                }
+                else if((splitedLine[0] == "#" && splitedLine[1] == "TYPE") || line == string.Empty)
+                {
+                    continue;
+                } 
+                else
+                {
+                    var metric = new Metric(line, description);
+                    AddMetrics(metric);
+                }
+
             }
-            return metricList;
         }
     }
 }

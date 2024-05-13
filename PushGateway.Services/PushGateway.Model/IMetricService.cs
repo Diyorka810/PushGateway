@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PushGateway.Model;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,9 +9,7 @@ namespace PushGateway.Model
 {
     public interface IMetricService
     {
-        void AddListMetrics(MetricRequestListDto metricsDto);
-        void AddMetrics(MetricRequestDto metricDto);
-        MetricRequestDto MetricParse(string metric);
-        MetricRequestListDto MetricsListParse(string metrics);
+        void AddListMetricsDto(MetricRequestListDto metricsDto);
+        Task ParseListStringMetrics(string metricsList);
     }
 }

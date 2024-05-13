@@ -12,7 +12,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddTransient<IMetricService, MetricService>().AddSingleton<IConfiguration>();
+builder.Services.AddTransient<IMetricService, MetricService>();
+    //.AddSingleton<IConfiguration>();
 
 var app = builder.Build();
 
