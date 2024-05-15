@@ -3,6 +3,6 @@
     public class MetricsOptions
     {
         public const string Position = "MetricsTimeToLive";
-        public TimeSpan Minutes { get; set; }
+        public int Minutes { get; set; }
     }
 }

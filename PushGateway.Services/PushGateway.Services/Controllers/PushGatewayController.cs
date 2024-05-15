@@ -27,7 +27,11 @@ namespace PushGateway.Services.Controllers
         [HttpPost("string")]
         public async Task<IActionResult> PostMetricsString([FromQuery] string metricsList)
         {
-            await _metricService.ParseListStringMetrics(metricsList);
+            string validationErrors;
+            _metricService.ReportStringMetrics(metricsList, out validationErrors);
+            if (validationErrors != null) 
+                return BadRequest(validationErrors);
+
             return Ok();
         }
     }

@@ -1,20 +1,24 @@
 ﻿using Prometheus;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PushGateway.Model
 {
-    public class Metric
+    public interface IReportableMetric
     {
-        public string Name { get; set; }
-        public double Value { get; set; }
-        public Dictionary<string, string>? Labels { get; set; }
-        public string? Description { get; set; }
+        void Report(TimeSpan timeToLive);
+    }
 
-        public Metric(MetricRequestDto metricDto)
+    public class MetricWithLabels : IReportableMetric
+    {
+        public string Name { get; init; }
+        public double Value { get; init; }
+        public string? Description { get; init; }
+        public Dictionary<string, string> Labels { get; init; }
+
+        public MetricWithLabels()
+        {
+        }
+
+        public MetricWithLabels(MetricRequestDto metricDto)
         {
             Name = metricDto.Name;
             Value = metricDto.Value;
@@ -22,37 +26,26 @@ namespace PushGateway.Model
             Description = metricDto.Description;
         }
 
-        public Metric(string metric, string descr = "")
+        public void Report(TimeSpan timeToLive)
         {
-            var splitMetric = metric.Split('{');
-            if (splitMetric.Length < 2)
-            {
-                var splitMetricNameValue = metric.Split(' ');
-                Name = splitMetricNameValue[0];
-                Value = double.Parse(splitMetricNameValue[1]);
-            }
-            else if (splitMetric.Length > 2)
-            {
+            var factory = Metrics.WithManagedLifetime(expiresAfter: timeToLive);
+            var labelNames = Labels.Keys.ToArray();
+            var gauge = factory.CreateGauge(Name, Description ?? string.Empty, labelNames);
+            gauge.WithLease(m => m.Set(Value), labelNames);
+        }
+    }
 
-            }
-            else
-            {
-                var splitMetricName = metric.Split("{");
-                Name = splitMetricName[0];
-                var splitMetricValue = splitMetricName[1].Split("}");
-                Value = double.Parse(splitMetricValue[1].Trim());
+    public class MetricWithoutLabels : IReportableMetric
+    {
+        public string Name { get; init; }
+        public double Value { get; init; }
+        public string? Description { get; init; }
 
-                var splitMetricLabels = splitMetricValue[0].Split(",");
-                var dict = new Dictionary<string, string>();
-                var chars = new Char[] { '\\', '\"' };
-                foreach (var item in splitMetricLabels)
-                {
-                    var label = item.Split("=");
-                    dict.Add(label[0].Trim(chars), label[1].Trim(chars));
-                }
-                Labels = dict;
-                Description = descr;
-            }
+        public void Report(TimeSpan timeToLive)
+        {
+            var factory = Metrics.WithManagedLifetime(expiresAfter: timeToLive);
+            var gauge = factory.CreateGauge(Name, Description ?? string.Empty);
+            gauge.WithLease(m => m.Set(Value));
         }
     }
 }

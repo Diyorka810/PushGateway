@@ -10,6 +10,6 @@ namespace PushGateway.Model
     public interface IMetricService
     {
         void AddListMetricsDto(MetricRequestListDto metricsDto);
-        Task ParseListStringMetrics(string metricsList);
+        void ReportStringMetrics(string metricsList, out string? validationErrors);
     }
 }
