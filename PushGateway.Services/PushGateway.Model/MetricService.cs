@@ -6,6 +6,8 @@ using System.Reflection.PortableExecutable;
 using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Options;
+using System.Xml.Linq;
+using System.Reflection.Emit;
 
 namespace PushGateway.Model
 {
@@ -19,6 +21,10 @@ namespace PushGateway.Model
         private const string Space = @"\s";
         private const string Labels = $"(\"{Word}\"=\"{Word}\",{Space})*(?:(\"{Word}\"=\"{Word}\")+)?";
         private const string Pattern = $"{Word}{{{Labels}}}{Space}{IntOrDouble}{EndOfLine}";
+
+
+        private const string Pattern3 = "^(\\w+)(?:\\s*\\{((?:\\s*\\w+\\s*=\\s*\"(?:[^\\\\\"]|\\\\.)+\"\\s*(?:,\\s*)?)*)\\s*\\})?\\s+(-?\\d+(?:\\.\\d+)?(?:[eE]-?\\d+)?|-?Inf|NaN)\\s*(\\d+)?$";
+
 
         public MetricService(IOptions<MetricsOptions> metricOptions)
         {
@@ -37,7 +43,7 @@ namespace PushGateway.Model
         public void ReportStringMetrics(string metricsList, out string? validationErrors)
         {
             validationErrors = null;
-            var splitMetricsList = metricsList.Split("\n");
+            var splitMetricsList = metricsList.Split("\\n");
             var description = "";
             foreach (var line in splitMetricsList)
             {
@@ -47,6 +53,13 @@ namespace PushGateway.Model
                 if (line.StartsWith("# HELP"))
                 {
                     ParseHelpString(line);
+                    continue;
+                }
+
+                var isValid = Regex.Match(line, Pattern3);
+                if (!isValid.Success)
+                {
+                    validationErrors = line + " is not valid";
                     continue;
                 }
 
@@ -69,8 +82,7 @@ namespace PushGateway.Model
         private IReportableMetric ParseSingleMetric(string metric, string description = "")
         {
 
-            var res = Regex.Match(metric, Pattern);
-            Console.WriteLine(res.Success);
+            
 
             var splitMetric = metric.Split('{');
             if (splitMetric.Length < 2)

@@ -30,8 +30,9 @@ namespace PushGateway.Model
         {
             var factory = Metrics.WithManagedLifetime(expiresAfter: timeToLive);
             var labelNames = Labels.Keys.ToArray();
+            var labelValues = Labels.Values.ToArray();
             var gauge = factory.CreateGauge(Name, Description ?? string.Empty, labelNames);
-            gauge.WithLease(m => m.Set(Value), labelNames);
+            gauge.WithLease(m => m.Set(Value), labelValues);
         }
     }
 
