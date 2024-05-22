@@ -16,12 +16,12 @@ namespace PushGateway.Services.Controllers
             _metricService = metricService;
         }
 
-        [HttpPost("single")]
-        public async Task<IActionResult> Post([FromBody] MetricRequestDto metricDto)
-        {
-            _metricService.LOL(metricDto);
-            return Ok();
-        }
+        //[HttpPost("single")]
+        //public async Task<IActionResult> Post([FromBody] MetricRequestDto metricDto)
+        //{
+        //    _metricService.LOL(metricDto);
+        //    return Ok();
+        //}
 
         [HttpPost("list")]
         public async Task<IActionResult> PostMetricsList([FromBody] MetricRequestListDto metricsDto)
