@@ -16,35 +16,19 @@ namespace PushGateway.Services.Controllers
             _metricService = metricService;
         }
 
-        //[HttpPost("single")]
-        //public async Task<IActionResult> Post([FromBody] MetricRequestDto metricDto)
-        //{
-        //    _metricService.LOL(metricDto);
-        //    return Ok();
-        //}
-
         [HttpPost("list")]
-        public async Task<IActionResult> PostMetricsList([FromBody] MetricRequestListDto metricsDto)
+        public async Task<IActionResult> ReportMetricDto([FromBody] MetricRequestListDto metricsDto)
         {
-            _metricService.AddListMetrics(metricsDto);
-            return Ok();
-        }
-
-        [HttpPost("string")]
-        public async Task<IActionResult> PostStringMetric([FromQuery] string metric)
-        {
-            var metricDto = _metricService.MetricParse(metric);
-            _metricService.AddMetrics(metricDto);
-
+            _metricService.AddListMetricsDto(metricsDto);
             return Ok();
         }
 
         [HttpPost("stringList")]
-        public async Task<IActionResult> PostStringMetricList([FromQuery] string metricsList)
+        public async Task<IActionResult> ReportMetricString([FromQuery] string metricsList)
         {
-            //игнорировать решетки
-            var metricListDto = _metricService.MetricsListParse(metricsList);
-            _metricService.AddListMetrics(metricListDto);
+            _metricService.ReportStringMetrics(metricsList, out string validationErrors);
+            if (validationErrors != null)
+                return StatusCode(StatusCodes.Status400BadRequest, validationErrors);
 
             return Ok();
         }
