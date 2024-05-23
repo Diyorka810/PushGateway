@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using PushGateway.Model;
-using PushGateway.Model;
 
 namespace PushGateway.Services.Controllers
 {
@@ -17,20 +16,35 @@ namespace PushGateway.Services.Controllers
             _metricService = metricService;
         }
 
-        [HttpPost("dto")]
+        //[HttpPost("single")]
+        //public async Task<IActionResult> Post([FromBody] MetricRequestDto metricDto)
+        //{
+        //    _metricService.LOL(metricDto);
+        //    return Ok();
+        //}
+
+        [HttpPost("list")]
         public async Task<IActionResult> PostMetricsList([FromBody] MetricRequestListDto metricsDto)
         {
-            _metricService.AddListMetricsDto(metricsDto);
+            _metricService.AddListMetrics(metricsDto);
             return Ok();
         }
 
         [HttpPost("string")]
-        public async Task<IActionResult> PostMetricsString([FromQuery] string metricsList)
+        public async Task<IActionResult> PostStringMetric([FromQuery] string metric)
         {
-            string validationErrors;
-            _metricService.ReportStringMetrics(metricsList, out validationErrors);
-            if (validationErrors != null) 
-                return BadRequest(validationErrors);
+            var metricDto = _metricService.MetricParse(metric);
+            _metricService.AddMetrics(metricDto);
+
+            return Ok();
+        }
+
+        [HttpPost("stringList")]
+        public async Task<IActionResult> PostStringMetricList([FromQuery] string metricsList)
+        {
+            //игнорировать решетки
+            var metricListDto = _metricService.MetricsListParse(metricsList);
+            _metricService.AddListMetrics(metricListDto);
 
             return Ok();
         }
