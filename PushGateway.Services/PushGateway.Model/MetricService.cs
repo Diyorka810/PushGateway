@@ -14,16 +14,10 @@ namespace PushGateway.Model
     public class MetricService : IMetricService
     {
         private readonly TimeSpan _timeToLive;
-        private const string Word = @"(\w+)";
-        private const string Number = @"\d";
-        private const string IntOrDouble = @$"({Number}+(?:\.{Number}+)?)";
-        private const string EndOfLine = "$";
-        private const string Space = @"\s";
-        private const string Labels = $"(\"{Word}\"=\"{Word}\",{Space})*(?:(\"{Word}\"=\"{Word}\")+)?";
-        private const string Pattern = $"{Word}{{{Labels}}}{Space}{IntOrDouble}{EndOfLine}";
-
-
-        private const string Pattern3 = "^(\\w+)(?:\\s*\\{((?:\\s*\\w+\\s*=\\s*\"(?:[^\\\\\"]|\\\\.)+\"\\s*(?:,\\s*)?)*)\\s*\\})?\\s+(-?\\d+(?:\\.\\d+)?(?:[eE]-?\\d+)?|-?Inf|NaN)\\s*(\\d+)?$";
+        private const string Name = "^(\\w+)";
+        private const string Labels = "(?:\\s*\\{((?:\\s*\\w+\\s*=\\s*\"(?:[^\\\\\"]|\\\\.)+\"\\s*(?:,\\s*)?)*)\\s*\\})";
+        private const string Value = "?\\s+(-?\\d+(?:\\.\\d+)?(?:[eE]-?\\d+)?|-?Inf|NaN)\\s*(\\d+)?$";
+        private const string Pattern3 = $"{Name}{Labels}{Value}";
 
 
         public MetricService(IOptions<MetricsOptions> metricOptions)
@@ -81,9 +75,6 @@ namespace PushGateway.Model
 
         private IReportableMetric ParseSingleMetric(string metric, string description = "")
         {
-
-            
-
             var splitMetric = metric.Split('{');
             if (splitMetric.Length < 2)
             {

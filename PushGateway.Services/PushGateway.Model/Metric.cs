@@ -9,10 +9,10 @@ namespace PushGateway.Model
 
     public class MetricWithLabels : IReportableMetric
     {
-        public string Name { get; init; }
-        public double Value { get; init; }
-        public string? Description { get; init; }
-        public Dictionary<string, string> Labels { get; init; }
+        public string Name { get; set; }
+        public double Value { get; set; }
+        public string? Description { get; set; }
+        public Dictionary<string, string> Labels { get; set; }
 
         public MetricWithLabels()
         {
@@ -29,24 +29,22 @@ namespace PushGateway.Model
         public void Report(TimeSpan timeToLive)
         {
             var factory = Metrics.WithManagedLifetime(expiresAfter: timeToLive);
-            var labelNames = Labels.Keys.ToArray();
-            var labelValues = Labels.Values.ToArray();
-            var gauge = factory.CreateGauge(Name, Description ?? string.Empty, labelNames);
-            gauge.WithLease(m => m.Set(Value), labelValues);
+            var gauge = factory.CreateGauge(Name, Description ?? string.Empty, Labels.Keys.ToArray());
+            gauge.WithLease(metric => metric.Set(Value), Labels.Values.ToArray());
         }
     }
 
     public class MetricWithoutLabels : IReportableMetric
     {
-        public string Name { get; init; }
-        public double Value { get; init; }
-        public string? Description { get; init; }
+        public string Name { get; set; }
+        public double Value { get; set; }
+        public string? Description { get; set; }
 
         public void Report(TimeSpan timeToLive)
         {
             var factory = Metrics.WithManagedLifetime(expiresAfter: timeToLive);
             var gauge = factory.CreateGauge(Name, Description ?? string.Empty);
-            gauge.WithLease(m => m.Set(Value));
+            gauge.WithLease(metric => metric.Set(metric.Value));
         }
     }
 }

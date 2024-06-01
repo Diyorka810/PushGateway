@@ -17,14 +17,14 @@ namespace PushGateway.Services.Controllers
         }
 
         [HttpPost("list")]
-        public async Task<IActionResult> ReportMetricDto([FromBody] MetricRequestListDto metricsDto)
+        public IActionResult ReportMetricDto([FromBody] MetricRequestListDto metricsDto)
         {
             _metricService.AddListMetricsDto(metricsDto);
             return Ok();
         }
 
         [HttpPost("stringList")]
-        public async Task<IActionResult> ReportMetricString([FromQuery] string metricsList)
+        public IActionResult ReportMetricString([FromQuery] string metricsList)
         {
             _metricService.ReportStringMetrics(metricsList, out string validationErrors);
             if (validationErrors != null)

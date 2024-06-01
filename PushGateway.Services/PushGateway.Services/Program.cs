@@ -13,7 +13,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddTransient<IMetricService, MetricService>();
-builder.Services.AddOptions<MetricsOptions>(MetricsOptions.Position);
+builder.Services.Configure<MetricsOptions>(
+    builder.Configuration.GetSection(MetricsOptions.Position));
 
 var app = builder.Build();
 
