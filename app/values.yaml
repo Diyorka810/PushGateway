@@ -1,0 +1,31 @@
+name: pushgateway
+
+replicas: 3
+
+strategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxSurge: 10
+    maxUnavailable: 0
+
+resources:
+  limits:
+    memory: "128mi"
+  requests:
+    cpu: "50m"
+    memory: "128mi"
+
+MetricsTimeTOLive: 10
+
+containerPort: 8080 
+
+image: pgw
+tag: latest
+imagePullPolicy: IfNotPresent
+
+serviceName: web-serevice
+nodeType: NodePort
+
+ports:
+- name: http
+  port: 8080
