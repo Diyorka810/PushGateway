@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.34707.107
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PushGateway.Services", "PushGateway.Services\PushGateway.Services.csproj", "{0FBFD548-A6B5-41EF-9508-C0D65A478D6D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PushGateway.Services", "PushGateway.Services\PushGateway.Services.csproj", "{0FBFD548-A6B5-41EF-9508-C0D65A478D6D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PushGateway.Model", "PushGateway.Model\PushGateway.Model.csproj", "{66EA85CC-2D07-4C80-8F61-F31BB7DE4369}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PushGateway.Model", "PushGateway.Model\PushGateway.Model.csproj", "{66EA85CC-2D07-4C80-8F61-F31BB7DE4369}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PushGateway.Tests", "PushGateway.Tests\PushGateway.Tests.csproj", "{F780CDFA-38A9-4B0B-94AF-C4CA700BBF61}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{66EA85CC-2D07-4C80-8F61-F31BB7DE4369}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{66EA85CC-2D07-4C80-8F61-F31BB7DE4369}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{66EA85CC-2D07-4C80-8F61-F31BB7DE4369}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F780CDFA-38A9-4B0B-94AF-C4CA700BBF61}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F780CDFA-38A9-4B0B-94AF-C4CA700BBF61}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F780CDFA-38A9-4B0B-94AF-C4CA700BBF61}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F780CDFA-38A9-4B0B-94AF-C4CA700BBF61}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
