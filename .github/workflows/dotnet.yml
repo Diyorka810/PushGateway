@@ -20,8 +20,8 @@ jobs:
       with:
         dotnet-version: 8.0.x
     - name: Restore dependencies
-      run: dotnet restore ./PushGateway.Services
+      run: dotnet restore ./PushGateway.Tests
     - name: Build
-      run: dotnet build ./PushGateway.Services/PushGateway.Services/PushGateway.Services.csproj --no-restore
+      run: dotnet build ./PushGateway.Tests/PushGateway.Tests.csproj --no-restore
     - name: Test with the dotnet CLI
-      run: dotnet test
+      run: dotnet test ./PushGateway.Tests/PushGateway.Tests.csproj
