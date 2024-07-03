@@ -1,4 +1,6 @@
 using Castle.Core.Logging;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 using PushGateway.Model;
@@ -10,11 +12,16 @@ namespace PushGateway.Tests
     [TestClass]
     public class PushGateWayControllerTests
     {
-        [TestMethod]
-        public void ReportMetricDto()
+        public MetricRequestDto metricsDto;
+        public MetricRequestListDto metricsListDto;
+        public string stringMetric;
+        public Mock<IMetricService> metricService;
+        public Mock<ILogger<MetricController>> logger;
+
+        [TestInitialize]
+        public void SetUp()
         {
-            //Arrange
-            var metricsDto = new MetricRequestDto()
+            metricsDto = new MetricRequestDto()
             {
                 Description = "description",
                 Labels = new Dictionary<string, string>(),
@@ -22,55 +29,76 @@ namespace PushGateway.Tests
                 Value = 0
             };
             metricsDto.Labels.Add("name", "value");
-            var metricsListDto = new MetricRequestListDto()
+
+            metricsListDto = new MetricRequestListDto()
             {
                 Metrics = new List<MetricRequestDto> { metricsDto }
             };
-            var metricService = new Mock<IMetricService>();
+
+            stringMetric = "string{additionalProp1=\"string1\",additionalProp2=\"string\",additionalProp3=\"string\"} 0";
+
+            metricService = new Mock<IMetricService>();
+            logger = new Mock<ILogger<MetricController>>();
+        }
+
+        [TestMethod]
+        public void ReportMetricDto_Success()
+        {
+            //Arrange
             metricService.Setup(x => x.AddListMetricsDto(metricsListDto));
-            var logger = new Mock<ILogger<MetricController>>();
             var controller = new MetricController(logger.Object, metricService.Object);
 
             //Act
 
-            controller.ReportMetricDto(metricsListDto);
+            var expectedResult = controller.ReportMetricDto(metricsListDto);
 
             //Assert
             metricService.VerifyAll();
+            Assert.IsNotNull(expectedResult);
+            var actionResult = expectedResult as OkResult;
+            Assert.IsNotNull(actionResult);
+            Assert.AreEqual(actionResult.StatusCode, 200);
         }
 
         [TestMethod]
-        public void LOL()
+        public void ReportMetricString_InvalidMetric_BadRequests()
         {
-            var height = new int[] { 8, 20, 1, 2, 3, 4, 5, 6 };
+            //Arrange
+            var validationErrors = "Metric is invalid";
+            metricService.Setup(x => x.ReportStringMetrics(stringMetric, out validationErrors));
+            var controller = new MetricController(logger.Object, metricService.Object);
 
-            int start = 0;
-            int end = height.Length - 1;
-            int fIndex = 0;
-            int fValue = 0;
+            //Act
 
-            while (start != height.Length)
-            {
-                if (fValue < height[start] * (height.Length - start - 1))
-                {
-                    fIndex = start;
-                    fValue = height[start] * (height.Length - start - 1);
-                }
-                start++;
-            }
-            var res = 0;
-            for (int i = fIndex; i < height.Length; i++)
-            {
-                var w = i - fIndex;
-                var h = height[fIndex] < height[i] ? height[fIndex] : height[i];
-                if (res < w * h)
-                {
-                    res = w * h;
-                }
-            }
+            var expectedResult = controller.ReportMetricString(stringMetric);
 
+            //Assert
+            metricService.VerifyAll();
+            Assert.IsNotNull(expectedResult);
+            var actionResult = expectedResult as ObjectResult;
+            Assert.IsNotNull(actionResult);
+            Assert.AreEqual(actionResult.StatusCode, 400);
+            Assert.AreEqual(actionResult.Value, validationErrors);
+        }
 
-            Assert.AreEqual(res, 202);
+        [TestMethod]
+        public void ReportMetricString_Success()
+        {
+            //Arrange
+            string validationErrors = null;
+            metricService.Setup(x => x.ReportStringMetrics(stringMetric, out validationErrors));
+            var controller = new MetricController(logger.Object, metricService.Object);
+
+            //Act
+
+            var expectedResult = controller.ReportMetricString(stringMetric);
+
+            //Assert
+            metricService.VerifyAll();
+            Assert.IsNotNull(expectedResult);
+            var actionResult = expectedResult as OkResult;
+            Assert.IsNotNull(actionResult);
+            Assert.AreEqual(actionResult.StatusCode, 200);
         }
     }
 }
