@@ -1,10 +1,7 @@
-using Castle.Core.Logging;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 using PushGateway.Model;
-using PushGateway.Services;
 using PushGateway.Services.Controllers;
 
 namespace PushGateway.Tests

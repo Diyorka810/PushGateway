@@ -1,13 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
-using Prometheus;
-using PushGateway.Model;
-using System.Configuration;
-using System.Reflection.PortableExecutable;
-using System.Text;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using Microsoft.Extensions.Options;
-using System.Xml.Linq;
-using System.Reflection.Emit;
 
 namespace PushGateway.Model
 {
@@ -18,7 +10,6 @@ namespace PushGateway.Model
         private const string Labels = "(?:\\s*\\{((?:\\s*\\w+\\s*=\\s*\"(?:[^\\\\\"]|\\\\.)+\"\\s*(?:,\\s*)?)*)\\s*\\})";
         private const string Value = "?\\s+(-?\\d+(?:\\.\\d+)?(?:[eE]-?\\d+)?|-?Inf|NaN)\\s*(\\d+)?$";
         private const string Pattern3 = $"{Name}{Labels}{Value}";
-
 
         public MetricService(IOptions<MetricsOptions> metricOptions)
         {

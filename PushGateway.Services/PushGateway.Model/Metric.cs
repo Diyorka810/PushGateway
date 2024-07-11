@@ -14,9 +14,7 @@ namespace PushGateway.Model
         public string? Description { get; set; }
         public Dictionary<string, string> Labels { get; set; }
 
-        public MetricWithLabels()
-        {
-        }
+        public MetricWithLabels() { }
 
         public MetricWithLabels(MetricRequestDto metricDto)
         {
